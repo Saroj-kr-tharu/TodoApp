@@ -1,0 +1,108 @@
+version: "3" #define version
+
+networks: #define network
+  todoapp_micro_net:
+    driver: bridge
+    name: todoapp_micro_net
+
+volumes: #volume for persistance storage
+  apigateway_microservice_todo_vol:
+  auth_microservice_todo_vol:
+  remainder_microservice_todo_vol:
+  todo_app_main_microservice_vol:
+  fortend_todo_vol:
+  rabbitmq_server_vol:
+
+services: # define service or container
+  rabbitmq_server:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq_server
+    networks:
+      - todoapp_micro_net
+    ports:
+      - "5672:5672" # RabbitMQ default port
+      - "15672:15672" # RabbitMQ Management plugin default port
+    volumes:
+      - rabbitmq_server_vol:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  todo_app_main:
+    container_name: todo_app_main_microservice
+    build: ./04_TodoApp_Main_MicroService_Todo
+    networks:
+      - todoapp_micro_net
+    # ports:
+    #   - "3005:3005"
+    volumes:  
+      - ./04_TodoApp_Main_MicroService_Todo:/todo_app/developer/backend_nodejs/todolist_main_microservice
+      - todo_app_main_microservice_vol:/todo_app/developer/backend_nodejs/todolist_main_microservice/node_modules
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=UrlShortner_DB_DEV
+
+  remainder_microservice_todo:
+    container_name: todoApp_remainder_microservice
+    build: ./03_RemainderMicroService_Todo
+    networks:
+      - todoapp_micro_net
+    # ports:
+    #   - "3004:3004"
+    volumes:
+      - remainder_microservice_todo_vol:/todo_app/developer/backend_nodejs/remainder_microservice/node_modules
+      - ./03_RemainderMicroService_Todo:/todo_app/developer/backend_nodejs/remainder_microservice
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=UrlShortner_DB_DEV
+
+  auth_microservice_todo:
+    container_name: auth_microservice_todo
+    build: ./02_AuthMicroService_Todo
+    networks:
+      - todoapp_micro_net
+    # ports:
+    #   - "3003:3003"
+    volumes:
+      - auth_microservice_todo_vol:/todo_app/developer/backend_nodejs/auth_microservice/node_modules
+      - ./02_AuthMicroService_Todo:/todo_app/developer/backend_nodejs/auth_microservice
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=UrlShortner_DB_DEV
+
+  apigateway_microservice_todo:
+    container_name: apigateway_microservice_todo
+    build: ./01_ApiGateway_Todo
+    networks:
+      - todoapp_micro_net
+    ports:
+      - "3000:3000"
+    volumes:
+      - apigateway_microservice_todo_vol:/todo_app/developer/backend_nodejs/apigateway/node_modules
+      - ./01_ApiGateway_Todo:/todo_app/developer/backend_nodejs/apigateway
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=12345
+      - MYSQL_DATABASE=UrlShortner_DB_DEV
+
+  fortend_todo_app:
+    container_name: fortend_todo_app
+    build: ./05_Fortend_Todo
+    networks:
+      - todoapp_micro_net
+    ports:
+      - "5173:5173"
+    volumes:
+      - fortend_todo_vol:/todo_app/developer/fortend/todoapp_fortend/node_modules
+      - ./05_Fortend_Todo:/todo_app/developer/fortend/todoapp_fortend

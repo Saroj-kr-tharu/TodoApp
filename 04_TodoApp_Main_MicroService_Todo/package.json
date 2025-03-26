@@ -1,0 +1,23 @@
+{
+  "name": "02_basic_todo_api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nodemon src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.5",
+    "nanoid": "^5.0.9",
+    "nodemon": "^3.1.7",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
+    "uuid": "^11.0.3"
+  }
+}
